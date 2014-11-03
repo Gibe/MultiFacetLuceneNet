@@ -167,22 +167,32 @@ namespace MultiFacetLucene
 
         protected Query CreateFacetedQuery(Query baseQueryWithoutFacetDrilldown, IList<FacetFieldInfo> facetFieldInfos, string facetAttributeFieldName)
         {
-            var facetsToAdd = facetFieldInfos.Where(x => x.FieldName != facetAttributeFieldName && x.Selections.Any()).ToList();
+            var facetsToAdd = facetFieldInfos.Where(x => x.FieldName != facetAttributeFieldName && x.HasSelections).ToList();
             if (!facetsToAdd.Any()) return baseQueryWithoutFacetDrilldown;
             var booleanQuery = new BooleanQuery {{baseQueryWithoutFacetDrilldown, Occur.MUST}};
             foreach (var facetFieldInfo in facetsToAdd)
             {
-                if (facetFieldInfo.Selections.Count == 1)
-                    booleanQuery.Add(new TermQuery(new Term(facetFieldInfo.FieldName, facetFieldInfo.Selections[0])), Occur.MUST);
-                else
-                {
-                    var valuesQuery = new BooleanQuery();
-                    foreach (var value in facetFieldInfo.Selections)
-                    {
-                        valuesQuery.Add(new TermQuery(new Term(facetFieldInfo.FieldName, value)), Occur.SHOULD);
-                    }
-                    booleanQuery.Add(valuesQuery, Occur.MUST);
-                }
+	            if (facetFieldInfo.GetType() == typeof(RangeFacetFieldInfo))
+	            {
+		            var rangeFacetFieldInfo = facetFieldInfo as RangeFacetFieldInfo;
+								booleanQuery.Add(new TermRangeQuery(facetFieldInfo.FieldName, rangeFacetFieldInfo.From, rangeFacetFieldInfo.To, true, true), Occur.MUST);
+	            }
+	            else
+	            {
+
+		            if (facetFieldInfo.Selections.Count == 1)
+			            booleanQuery.Add(new TermQuery(new Term(facetFieldInfo.FieldName, facetFieldInfo.Selections[0])),
+				            Occur.MUST);
+		            else
+		            {
+			            var valuesQuery = new BooleanQuery();
+			            foreach (var value in facetFieldInfo.Selections)
+			            {
+				            valuesQuery.Add(new TermQuery(new Term(facetFieldInfo.FieldName, value)), Occur.SHOULD);
+			            }
+			            booleanQuery.Add(valuesQuery, Occur.MUST);
+		            }
+	            }
             }
             return booleanQuery;
         }

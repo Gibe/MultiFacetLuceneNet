@@ -230,6 +230,37 @@ namespace MultiFacetLuceneNet.Tests
             Assert.AreEqual(3, typeFacets.Single(x => x.Value == "food").Count);//only yellow
         }
 
+				[TestMethod]
+				public void RangeFacetsShouldReturnCorrectFacetsAndDocument()
+				{
+					var facetFieldInfos = new List<FacetFieldInfo>
+            {
+                new RangeFacetFieldInfo{ FieldName = "price", From = "20", To = "30" },
+								new FacetFieldInfo{ FieldName = "color", Selections = new List<string>()},
+								new FacetFieldInfo{ FieldName = "type", Selections = new List<string>()},
+            };
+
+					var actual = _target.SearchWithFacets(new MatchAllDocsQuery(), 100, facetFieldInfos);
+
+					var colorFacets = actual.Facets.Where(x => x.FacetFieldName == "color").ToList();
+					var typeFacets = actual.Facets.Where(x => x.FacetFieldName == "type").ToList();
+					var priceFacets = actual.Facets.Where(x => x.FacetFieldName == "price").ToList();
+
+					Assert.AreEqual(2, actual.Hits.TotalHits);
+
+					Assert.AreEqual(1, colorFacets.Count);
+					Assert.AreEqual(3, typeFacets.Count);
+					Assert.AreEqual(5, priceFacets.Count);
+
+					Assert.AreEqual(2, colorFacets.Single(x => x.Value == "yellow").Count); 
+
+					Assert.AreEqual(1, typeFacets.Single(x => x.Value == "meat").Count); 
+					Assert.AreEqual(1, typeFacets.Single(x => x.Value == "fruit").Count);
+					Assert.AreEqual(2, typeFacets.Single(x => x.Value == "food").Count);
+
+					
+				}
+
 
         protected static IndexReader SetupIndex()
         {
