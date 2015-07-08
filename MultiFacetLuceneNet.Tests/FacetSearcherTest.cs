@@ -235,7 +235,16 @@ namespace MultiFacetLuceneNet.Tests
 				{
 					var facetFieldInfos = new List<FacetFieldInfo>
             {
-                new RangeFacetFieldInfo{ FieldName = "price", From = "20", To = "30" },
+                new FacetFieldInfo{ FieldName = "price", IsRange = true, Ranges = new List<Range>
+                {
+	                new Range { Id = "A", From = "0", To = "10"},
+									new Range { Id = "B", From = "0", To = "20"},
+									new Range { Id = "C", From = "0", To = "30"}
+                },
+								Selections = new List<string>
+								{
+									"B"
+								}},
 								new FacetFieldInfo{ FieldName = "color", Selections = new List<string>()},
 								new FacetFieldInfo{ FieldName = "type", Selections = new List<string>()},
             };
@@ -246,19 +255,22 @@ namespace MultiFacetLuceneNet.Tests
 					var typeFacets = actual.Facets.Where(x => x.FacetFieldName == "type").ToList();
 					var priceFacets = actual.Facets.Where(x => x.FacetFieldName == "price").ToList();
 
-					Assert.AreEqual(2, actual.Hits.TotalHits);
+					Assert.AreEqual(3, actual.Hits.TotalHits);
 
-					Assert.AreEqual(1, colorFacets.Count);
+					Assert.AreEqual(2, colorFacets.Count);
 					Assert.AreEqual(3, typeFacets.Count);
-					Assert.AreEqual(5, priceFacets.Count);
+					Assert.AreEqual(3, priceFacets.Count);
 
-					Assert.AreEqual(2, colorFacets.Single(x => x.Value == "yellow").Count); 
+					Assert.AreEqual(2, priceFacets.Single(x => x.Value == "A").Count);
+					Assert.AreEqual(3, priceFacets.Single(x => x.Value == "B").Count);
+					Assert.AreEqual(4, priceFacets.Single(x => x.Value == "C").Count);
 
-					Assert.AreEqual(1, typeFacets.Single(x => x.Value == "meat").Count); 
-					Assert.AreEqual(1, typeFacets.Single(x => x.Value == "fruit").Count);
+					Assert.AreEqual(2, colorFacets.Single(x => x.Value == "yellow").Count);
+					Assert.AreEqual(1, colorFacets.Single(x => x.Value == "none").Count);
+
 					Assert.AreEqual(2, typeFacets.Single(x => x.Value == "food").Count);
-
-					
+					Assert.AreEqual(2, typeFacets.Single(x => x.Value == "fruit").Count);
+					Assert.AreEqual(1, typeFacets.Single(x => x.Value == "drink").Count);
 				}
 
 
