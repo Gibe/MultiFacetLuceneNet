@@ -9,6 +9,7 @@ namespace MultiFacetLucene
 		public FacetFieldInfo()
 		{
 			Selections = new List<string>();
+			Ranges = new List<Range>();
 			MaxToFetchExcludingSelections = 20;
 		}
 		public string FieldName { get; set; }
