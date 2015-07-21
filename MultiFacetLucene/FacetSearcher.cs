@@ -45,16 +45,19 @@ namespace MultiFacetLucene
 			FacetSearcherConfiguration = facetSearcherConfiguration ?? FacetSearcherConfiguration.Default();
 		}
 		
-		public FacetSearchResult SearchWithFacets(Query baseQueryWithoutFacetDrilldown, int topResults, IList<FacetFieldInfo> facetFieldInfos)
+		public FacetSearchResult SearchWithFacets(Query baseQueryWithoutFacetDrilldown, int topResults, IList<FacetFieldInfo> facetFieldInfos, bool includeEmptyFacets = false)
 		{
 			var hits = Search(CreateFacetedQuery(baseQueryWithoutFacetDrilldown, facetFieldInfos, null), topResults);
 
-			var facets = GetAllFacetsValues(baseQueryWithoutFacetDrilldown, facetFieldInfos)
-					.Where(x => x.Count > 0)
-					.ToList();
+			var facets = GetAllFacetsValues(baseQueryWithoutFacetDrilldown, facetFieldInfos);
+			if (!includeEmptyFacets)
+			{
+				facets = facets.Where(x => x.Count > 0);
+			}
+
 			return new FacetSearchResult()
 			{
-				Facets = facets,
+				Facets = facets.ToList(),
 				Hits = hits
 			};
 		}
@@ -119,8 +122,7 @@ namespace MultiFacetLucene
 				var bitset = facetValueBitSet.Bitset ?? GetFacetBitSetCalculator(facetFieldInfoToCalculateFor).GetFacetBitSet(IndexReader, facetFieldInfoToCalculateFor, facetValueBitSet.Value);
 				baseQueryWithoutFacetDrilldownCopy.And(bitset);
 				var count = baseQueryWithoutFacetDrilldownCopy.Cardinality();
-				if (count == 0)
-					continue;
+				
 				var match = new FacetMatch
 				{
 					Count = count,
