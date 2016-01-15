@@ -44,11 +44,11 @@ namespace MultiFacetLucene
 		{
 			FacetSearcherConfiguration = facetSearcherConfiguration ?? FacetSearcherConfiguration.Default();
 		}
-		
-		public FacetSearchResult SearchWithFacets(Query baseQueryWithoutFacetDrilldown, int topResults, IList<FacetFieldInfo> facetFieldInfos, bool includeEmptyFacets = false, Query filter = null)
+
+		public virtual FacetSearchResult SearchWithFacets(Query baseQueryWithoutFacetDrilldown, int topResults, IList<FacetFieldInfo> facetFieldInfos, bool includeEmptyFacets = false, Query filter = null, Dictionary<int, int> docIdMappingTable = null)
 		{
 			var hits = Search(CreateFacetedQuery(baseQueryWithoutFacetDrilldown, facetFieldInfos, null), topResults);
-
+			
 			var facets = GetAllFacetsValues(baseQueryWithoutFacetDrilldown, facetFieldInfos, filter);
 			if (!includeEmptyFacets)
 			{
