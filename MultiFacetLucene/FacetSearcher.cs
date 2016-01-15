@@ -49,7 +49,7 @@ namespace MultiFacetLucene
 		{
 			var hits = Search(CreateFacetedQuery(baseQueryWithoutFacetDrilldown, facetFieldInfos, null), topResults);
 			
-			var facets = GetAllFacetsValues(baseQueryWithoutFacetDrilldown, facetFieldInfos, filter);
+			var facets = GetAllFacetsValues(baseQueryWithoutFacetDrilldown, facetFieldInfos, filter, docIdMappingTable);
 			if (!includeEmptyFacets)
 			{
 				facets = facets.Where(x => x.Count > 0);
@@ -85,16 +85,15 @@ namespace MultiFacetLucene
 			return facetValues;
 		}
 		
-		private IEnumerable<FacetMatch> GetAllFacetsValues(Query baseQueryWithoutFacetDrilldown,
-				IList<FacetFieldInfo> facetFieldInfos, Query filter)
+		private IEnumerable<FacetMatch> GetAllFacetsValues(Query baseQueryWithoutFacetDrilldown, IList<FacetFieldInfo> facetFieldInfos, Query filter, Dictionary<int, int> docIdMappingTable)
 		{
 			return
 					facetFieldInfos.SelectMany(
 							facetFieldInfo =>
-									FindMatchesInQuery(baseQueryWithoutFacetDrilldown, facetFieldInfos, facetFieldInfo, filter));
+									FindMatchesInQuery(baseQueryWithoutFacetDrilldown, facetFieldInfos, facetFieldInfo, filter, docIdMappingTable));
 		}
 
-		private IEnumerable<FacetMatch> FindMatchesInQuery(Query baseQueryWithoutFacetDrilldown, IList<FacetFieldInfo> allFacetFieldInfos, FacetFieldInfo facetFieldInfoToCalculateFor, Query filter)
+		private IEnumerable<FacetMatch> FindMatchesInQuery(Query baseQueryWithoutFacetDrilldown, IList<FacetFieldInfo> allFacetFieldInfos, FacetFieldInfo facetFieldInfoToCalculateFor, Query filter, Dictionary<int, int> docIdMappingTable)
 		{
 			var calculations = 0;
 			var query = CombineQueryWithFilter(CreateFacetedQuery(baseQueryWithoutFacetDrilldown, allFacetFieldInfos, facetFieldInfoToCalculateFor.FieldName), filter);
@@ -121,6 +120,11 @@ namespace MultiFacetLucene
 
 				var bitset = facetValueBitSet.Bitset ?? GetFacetBitSetCalculator(facetFieldInfoToCalculateFor).GetFacetBitSet(IndexReader, facetFieldInfoToCalculateFor, facetValueBitSet.Value);
 				baseQueryWithoutFacetDrilldownCopy.And(bitset);
+
+				if (docIdMappingTable != null)
+				{
+					CascadeVariantValuesToParent(baseQueryWithoutFacetDrilldownCopy, docIdMappingTable);
+				}
 				var count = baseQueryWithoutFacetDrilldownCopy.Cardinality();
 				
 				var match = new FacetMatch
@@ -140,6 +144,20 @@ namespace MultiFacetLucene
 			return calculatedFacetCounts.GetList();
 		}
 
+		private void CascadeVariantValuesToParent(OpenBitSetDISI bitset, Dictionary<int, int> docIdMappingTable)
+		{
+			for (int i = 0; i < bitset.Capacity(); i++)
+			{
+				if (docIdMappingTable.ContainsKey(i) && docIdMappingTable[i] != i)
+				{
+					if (bitset.Get(i))
+					{
+						bitset.FastSet(docIdMappingTable[i]);
+					}
+					bitset.FastClear(i);
+				}
+			}
+		}
 		private Query CombineQueryWithFilter(Query query, Query filter)
 		{
 			if (filter == null)
