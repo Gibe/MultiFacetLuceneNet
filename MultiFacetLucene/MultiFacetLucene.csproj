@@ -105,6 +105,7 @@
     <Compile Include="Configuration\MemoryOptimizer\DefaultMemoryOptimizer.cs" />
     <Compile Include="Configuration\MemoryOptimizer\IMemoryOptimizer.cs" />
     <Compile Include="Configuration\MemoryOptimizer\NoMemoryOptimizer.cs" />
+    <Compile Include="Filter\ChainedFilter.cs" />
     <Compile Include="IFacetBitSetCalculator.cs" />
     <Compile Include="IFacetBitSetCalculatorProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Lucene.Net.Analysis;
 using Lucene.Net.Index;
 using Lucene.Net.Search;
 using Lucene.Net.Store;
@@ -39,7 +40,7 @@ namespace MultiFacetLucene
 			FacetSearcherConfiguration = facetSearcherConfiguration ?? FacetSearcherConfiguration.Default();
 		}
 
-		public virtual FacetSearchResult SearchWithFacets(Query baseQueryWithoutFacetDrilldown, int topResults, IList<FacetFieldInfo> facetFieldInfos, bool includeEmptyFacets = false, Query filter = null, Dictionary<int, int> docIdMappingTable = null)
+		public virtual FacetSearchResult SearchWithFacets(Query baseQueryWithoutFacetDrilldown, int topResults, IList<FacetFieldInfo> facetFieldInfos, bool includeEmptyFacets = false, Filter filter = null, Dictionary<int, int> docIdMappingTable = null)
 		{
 			var hits = Search(CreateFacetedQuery(baseQueryWithoutFacetDrilldown, facetFieldInfos, null), topResults);
 			
@@ -49,7 +50,7 @@ namespace MultiFacetLucene
 				facets = facets.Where(x => x.Count > 0);
 			}
 
-			return new FacetSearchResult()
+			return new FacetSearchResult
 			{
 				Facets = facets.ToList(),
 				Hits = hits
@@ -79,7 +80,7 @@ namespace MultiFacetLucene
 			return facetValues;
 		}
 		
-		private IEnumerable<FacetMatch> GetAllFacetsValues(Query baseQueryWithoutFacetDrilldown, IList<FacetFieldInfo> facetFieldInfos, Query filter, Dictionary<int, int> docIdMappingTable)
+		private IEnumerable<FacetMatch> GetAllFacetsValues(Query baseQueryWithoutFacetDrilldown, IList<FacetFieldInfo> facetFieldInfos, Filter filter, Dictionary<int, int> docIdMappingTable)
 		{
 			return
 					facetFieldInfos.SelectMany(
@@ -87,11 +88,10 @@ namespace MultiFacetLucene
 									FindMatchesInQuery(baseQueryWithoutFacetDrilldown, facetFieldInfos, facetFieldInfo, filter, docIdMappingTable));
 		}
 
-		private IEnumerable<FacetMatch> FindMatchesInQuery(Query baseQueryWithoutFacetDrilldown, IList<FacetFieldInfo> allFacetFieldInfos, FacetFieldInfo facetFieldInfoToCalculateFor, Query filter, Dictionary<int, int> docIdMappingTable)
+		private IEnumerable<FacetMatch> FindMatchesInQuery(Query baseQueryWithoutFacetDrilldown, IList<FacetFieldInfo> allFacetFieldInfos, FacetFieldInfo facetFieldInfoToCalculateFor, Filter filter, Dictionary<int, int> docIdMappingTable)
 		{
 			var calculations = 0;
-			var query = CombineQueryWithFilter(CreateFacetedQuery(baseQueryWithoutFacetDrilldown, allFacetFieldInfos, facetFieldInfoToCalculateFor.FieldName), filter);
-			var queryFilter = new CachingWrapperFilter(new QueryWrapperFilter(query));
+			var queryFilter = new CachingWrapperFilter(CombineQueryWithFilter(CreateFacetedQuery(baseQueryWithoutFacetDrilldown, allFacetFieldInfos, facetFieldInfoToCalculateFor.FieldName), filter));
 			var bitsQueryWithoutFacetDrilldown = new OpenBitSetDISI(queryFilter.GetDocIdSet(GetIndexReader()).Iterator(), GetIndexReader().MaxDoc());
 			var baseQueryWithoutFacetDrilldownCopy = new OpenBitSetDISI(bitsQueryWithoutFacetDrilldown.GetBits().Length);
 			baseQueryWithoutFacetDrilldownCopy.SetBits(new long[bitsQueryWithoutFacetDrilldown.GetBits().Length]);
@@ -151,17 +151,20 @@ namespace MultiFacetLucene
 				}
 			}
 		}
-		private Query CombineQueryWithFilter(Query query, Query filter)
+		private Filter CombineQueryWithFilter(Query query, Filter filter)
 		{
 			if (filter == null)
 			{
-				return query;
+				return new QueryWrapperFilter(query);
 			}
-			
-			var combinedQuery = new BooleanQuery();
-			combinedQuery.Add(query, BooleanClause.Occur.MUST);
-			combinedQuery.Add(filter, BooleanClause.Occur.MUST);
-			return combinedQuery;
+
+			return new ChainedFilter(new []
+				{
+					new QueryWrapperFilter(query),
+					filter
+				}
+			);
+
 		}
 
 		protected Query CreateFacetedQuery(Query baseQueryWithoutFacetDrilldown, IList<FacetFieldInfo> facetFieldInfos, string facetAttributeFieldName)
