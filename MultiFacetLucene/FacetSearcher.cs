@@ -162,7 +162,8 @@ namespace MultiFacetLucene
 				{
 					new QueryWrapperFilter(query),
 					filter
-				}
+				},
+				ChainedFilter.Logic.AND
 			);
 
 		}
