@@ -95,7 +95,8 @@ namespace MultiFacetLucene
 			var bitsQueryWithoutFacetDrilldown = new OpenBitSetDISI(queryFilter.GetDocIdSet(GetIndexReader()).Iterator(), GetIndexReader().MaxDoc());
 			var baseQueryWithoutFacetDrilldownCopy = new OpenBitSetDISI(bitsQueryWithoutFacetDrilldown.GetBits().Length);
 			baseQueryWithoutFacetDrilldownCopy.SetBits(new long[bitsQueryWithoutFacetDrilldown.GetBits().Length]);
-		
+
+			var docIdMappingArray = GetDocIdMappingArray(docIdMappingTable);
 
 			var calculatedFacetCounts = new ResultCollection(facetFieldInfoToCalculateFor);
 			foreach (var facetValueBitSet in GetOrCreateFacetBitSet(facetFieldInfoToCalculateFor).FacetValueBitSetList)
@@ -114,9 +115,9 @@ namespace MultiFacetLucene
 				var bitset = facetValueBitSet.Bitset ?? GetFacetBitSetCalculator(facetFieldInfoToCalculateFor).GetFacetBitSet(GetIndexReader(), facetFieldInfoToCalculateFor, facetValueBitSet.Value);
 				baseQueryWithoutFacetDrilldownCopy.And(bitset);
 
-				if (docIdMappingTable != null)
+				if (docIdMappingArray != null)
 				{
-					CascadeVariantValuesToParent(baseQueryWithoutFacetDrilldownCopy, docIdMappingTable);
+					CascadeVariantValuesToParent(baseQueryWithoutFacetDrilldownCopy, docIdMappingArray);
 				}
 				var count = baseQueryWithoutFacetDrilldownCopy.Cardinality();
 				
@@ -137,13 +138,31 @@ namespace MultiFacetLucene
 			return calculatedFacetCounts.GetList();
 		}
 
-		private void CascadeVariantValuesToParent(OpenBitSetDISI bitset, Dictionary<int, int> docIdMappingTable)
+		private int[] GetDocIdMappingArray(Dictionary<int, int> docIdMappingTable)
 		{
-			for (int i = 0; i < bitset.Capacity(); i++)
+			if (docIdMappingTable == null)
 			{
-				if (docIdMappingTable.ContainsKey(i) && docIdMappingTable[i] != i)
+				return null;
+			}
+			var mappingArray = new int[docIdMappingTable.Keys.Max() + 1];
+			foreach (var kvp in docIdMappingTable)
+			{
+				mappingArray[kvp.Key] = kvp.Value;
+			}
+
+			return mappingArray;
+		}
+
+		private void CascadeVariantValuesToParent(OpenBitSetDISI bitset, int[] docIdMappingTable)
+		{
+			var capacity = Math.Min(bitset.Capacity(), docIdMappingTable.Length);
+			if (bitset.IsEmpty())
+				return;
+			for (int i = 0; i < capacity; i++)
+			{
+				if (docIdMappingTable[i] != i)
 				{
-					if (bitset.Get(i))
+					if (bitset.FastGet(i))
 					{
 						bitset.FastSet(docIdMappingTable[i]);
 					}
