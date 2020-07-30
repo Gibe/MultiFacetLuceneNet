@@ -47,7 +47,7 @@ namespace MultiFacetLucene
 		{
 			var facetQuery = new TermRangeQuery(facetAttributeFieldName, from, to, true, true);
 			var facetQueryFilter = new QueryWrapperFilter(facetQuery);
-			return new OpenBitSetDISI(facetQueryFilter.GetDocIdSet(indexReader).Iterator(), indexReader.MaxDoc());
+			return new OpenBitSetDISI(facetQueryFilter.GetDocIdSet(indexReader).Iterator(), indexReader.MaxDoc);
 		}
 	}
 }

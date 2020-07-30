@@ -190,8 +190,8 @@ namespace MultiFacetLuceneNet.Tests
 			var typeFacets = actual.Facets.Where(x => x.FacetFieldName == "type").ToList();
 
 			Assert.AreEqual(2, actual.Hits.TotalHits);
-			Assert.AreEqual("Banana", _target.Doc(actual.Hits.ScoreDocs[0].doc).GetField("title").StringValue());
-			Assert.AreEqual("Water", _target.Doc(actual.Hits.ScoreDocs[1].doc).GetField("title").StringValue());
+			Assert.AreEqual("Banana", _target.Doc(actual.Hits.ScoreDocs[0].Doc).GetField("title").StringValue);
+			Assert.AreEqual("Water", _target.Doc(actual.Hits.ScoreDocs[1].Doc).GetField("title").StringValue);
 
 			Assert.AreEqual(2, colorFacets.Count);
 			Assert.AreEqual(3, typeFacets.Count);

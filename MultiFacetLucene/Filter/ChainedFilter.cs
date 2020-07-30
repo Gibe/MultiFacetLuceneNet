@@ -128,18 +128,18 @@ namespace Lucene.Net.Analysis
 			 */
 			if (logic == Logic.AND)
 			{
-				result = new OpenBitSetDISI(GetDISI(chain[index[0]], reader), reader.MaxDoc());
+				result = new OpenBitSetDISI(GetDISI(chain[index[0]], reader), reader.MaxDoc);
 				++index[0];
 			}
 			else if (logic == Logic.ANDNOT)
 			{
-				result = new OpenBitSetDISI(GetDISI(chain[index[0]], reader), reader.MaxDoc());
-				result.Flip(0, reader.MaxDoc()); // NOTE: may set bits for deleted docs.
+				result = new OpenBitSetDISI(GetDISI(chain[index[0]], reader), reader.MaxDoc);
+				result.Flip(0, reader.MaxDoc); // NOTE: may set bits for deleted docs.
 				++index[0];
 			}
 			else
 			{
-				result = new OpenBitSetDISI(reader.MaxDoc());
+				result = new OpenBitSetDISI(reader.MaxDoc);
 			}
 			return result;
 		}
@@ -171,7 +171,7 @@ namespace Lucene.Net.Analysis
 			{
 				DoChain(result, logic, chain[index[0]].GetDocIdSet(reader));
 			}
-			return FinalResult(result, reader.MaxDoc());
+			return FinalResult(result, reader.MaxDoc);
 		}
 
 		/**
@@ -190,7 +190,7 @@ namespace Lucene.Net.Analysis
 			{
 				DoChain(result, logic[index[0]], chain[index[0]].GetDocIdSet(reader));
 			}
-			return FinalResult(result, reader.MaxDoc());
+			return FinalResult(result, reader.MaxDoc);
 		}
 
 		public override String ToString()
