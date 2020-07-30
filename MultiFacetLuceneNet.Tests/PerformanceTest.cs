@@ -76,7 +76,7 @@ namespace MultiFacetLuceneNet.Tests
         protected static IndexReader SetupIndex()
         {
             var directory = new RAMDirectory();
-            var writer = new IndexWriter(directory, new StandardAnalyzer(Version.LUCENE_30), true,
+            var writer = new IndexWriter(directory, new StandardAnalyzer(Version.LUCENE_29), true,
                 IndexWriter.MaxFieldLength.LIMITED);
             for (var i = 0; i < 50000; i++)
                 writer.AddDocument(new Document()
