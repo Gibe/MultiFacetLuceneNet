@@ -64,7 +64,7 @@ namespace PerformanceTest
         protected static IndexReader SetupIndex()
         {
             var directory = new RAMDirectory();
-            var writer = new IndexWriter(directory, new StandardAnalyzer(Version.LUCENE_30), true,
+            var writer = new IndexWriter(directory, new StandardAnalyzer(Version.LUCENE_29), true,
                 IndexWriter.MaxFieldLength.LIMITED);
             for (var i = 0; i < 50000; i++)
                 writer.AddDocument(new Document()
@@ -81,7 +81,7 @@ namespace PerformanceTest
 
         protected static IndexReader SetupIndexPhysicalTest()
         {
-            var directory = @"D:\Code\sites\SearchSite\SearchSiteWeb\App_Data\Index\Wordpress";
+            var directory = new DirectoryInfo(@"D:\Code\sites\SearchSite\SearchSiteWeb\App_Data\Index\Wordpress");
             var index = FSDirectory.Open(directory);
             return IndexReader.Open(index, true);
         }
@@ -94,9 +94,9 @@ namespace PerformanceTest
             var stopwatchAll = new Stopwatch();
             stopwatchAll.Start();
 
-            var queryParser = new MultiFieldQueryParser(Version.LUCENE_30,
+            var queryParser = new MultiFieldQueryParser(Version.LUCENE_29,
                 new[] {"title", "bodies"},
-                new StandardAnalyzer(Version.LUCENE_30)
+                new StandardAnalyzer(Version.LUCENE_29)
                 );
 
             var facetFieldInfos = new List<FacetFieldInfo>
