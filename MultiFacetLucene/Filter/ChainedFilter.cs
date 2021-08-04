@@ -86,31 +86,31 @@ namespace Lucene.Net.Analysis
 		}
 
 		///<see cref="Filter#getDocIdSet"/>
-		public override DocIdSet GetDocIdSet(IndexReader reader)
+		public override DocIdSet GetDocIdSet(AtomicReaderContext context, IBits acceptDocs)
 		{
 			int[] index = new int[1]; // use array as reference to modifiable int; 
 			index[0] = 0;             // an object attribute would not be thread safe.
 			if (logic != Logic.NONE)
-				return GetDocIdSet(reader, logic, index);
+				return GetDocIdSet(context, acceptDocs, logic, index);
 			else if (logicArray != null)
-				return GetDocIdSet(reader, logicArray, index);
+				return GetDocIdSet(context, acceptDocs, logicArray, index);
 			else
-				return GetDocIdSet(reader, DEFAULT, index);
+				return GetDocIdSet(context, acceptDocs, DEFAULT, index);
 		}
 
-		private DocIdSetIterator GetDISI(Filter filter, IndexReader reader)
+		private DocIdSetIterator GetDISI(Filter filter, AtomicReaderContext context, IBits acceptDocs)
 		{
-			DocIdSet docIdSet = filter.GetDocIdSet(reader);
+			DocIdSet docIdSet = filter.GetDocIdSet(context, acceptDocs);
 			if (docIdSet == null)
 			{
-				return DocIdSet.EMPTY_DOCIDSET.Iterator();
+				return null; //TODO:DocIdSet.EMPTY_DOCIDSET.Iterator();
 			}
 			else
 			{
-				DocIdSetIterator iter = docIdSet.Iterator();
+				DocIdSetIterator iter = docIdSet.GetIterator();
 				if (iter == null)
 				{
-					return DocIdSet.EMPTY_DOCIDSET.Iterator();
+					return null; //TODO:DocIdSet.EMPTY_DOCIDSET.Iterator();
 				}
 				else
 				{
@@ -119,7 +119,7 @@ namespace Lucene.Net.Analysis
 			}
 		}
 
-		private OpenBitSetDISI InitialResult(IndexReader reader, Logic logic, int[] index)
+		private OpenBitSetDISI InitialResult(AtomicReaderContext context, IBits acceptDocs, Logic logic, int[] index)
 		{
 			OpenBitSetDISI result;
 			/**
@@ -128,18 +128,18 @@ namespace Lucene.Net.Analysis
 			 */
 			if (logic == Logic.AND)
 			{
-				result = new OpenBitSetDISI(GetDISI(chain[index[0]], reader), reader.MaxDoc);
+				result = new OpenBitSetDISI(GetDISI(chain[index[0]], context, acceptDocs), context.Reader.MaxDoc);
 				++index[0];
 			}
 			else if (logic == Logic.ANDNOT)
 			{
-				result = new OpenBitSetDISI(GetDISI(chain[index[0]], reader), reader.MaxDoc);
-				result.Flip(0, reader.MaxDoc); // NOTE: may set bits for deleted docs.
+				result = new OpenBitSetDISI(GetDISI(chain[index[0]], context, acceptDocs), context.Reader.MaxDoc);
+				result.Flip(0, context.Reader.MaxDoc); // NOTE: may set bits for deleted docs.
 				++index[0];
 			}
 			else
 			{
-				result = new OpenBitSetDISI(reader.MaxDoc);
+				result = new OpenBitSetDISI(context.Reader.MaxDoc);
 			}
 			return result;
 		}
@@ -164,14 +164,14 @@ namespace Lucene.Net.Analysis
 		 * @param logic Logical operation
 		 * @return DocIdSet
 		 */
-		private DocIdSet GetDocIdSet(IndexReader reader, Logic logic, int[] index)
+		private DocIdSet GetDocIdSet(AtomicReaderContext context, IBits acceptDocs, Logic logic, int[] index)
 		{
-			OpenBitSetDISI result = InitialResult(reader, logic, index);
+			OpenBitSetDISI result = InitialResult(context, acceptDocs, logic, index);
 			for (; index[0] < chain.Length; index[0]++)
 			{
-				DoChain(result, logic, chain[index[0]].GetDocIdSet(reader));
+				DoChain(result, logic, chain[index[0]].GetDocIdSet(context, acceptDocs));
 			}
-			return FinalResult(result, reader.MaxDoc);
+			return FinalResult(result, context.Reader.MaxDoc);
 		}
 
 		/**
@@ -180,20 +180,20 @@ namespace Lucene.Net.Analysis
 		 * @param logic Logical operation
 		 * @return DocIdSet
 		 */
-		private DocIdSet GetDocIdSet(IndexReader reader, Logic[] logic, int[] index)
+		private DocIdSet GetDocIdSet(AtomicReaderContext context, IBits acceptDocs, Logic[] logic, int[] index)
 		{
 			if (logic.Length != chain.Length)
 				throw new ArgumentException("Invalid number of elements in logic array");
 
-			OpenBitSetDISI result = InitialResult(reader, logic[0], index);
+			OpenBitSetDISI result = InitialResult(context, acceptDocs, logic[0], index);
 			for (; index[0] < chain.Length; index[0]++)
 			{
-				DoChain(result, logic[index[0]], chain[index[0]].GetDocIdSet(reader));
+				DoChain(result, logic[index[0]], chain[index[0]].GetDocIdSet(context, acceptDocs));
 			}
-			return FinalResult(result, reader.MaxDoc);
+			return FinalResult(result, context.Reader.MaxDoc);
 		}
 
-		public override String ToString()
+		public override string ToString()
 		{
 			StringBuilder sb = new StringBuilder();
 			sb.Append("ChainedFilter: [");
@@ -236,14 +236,14 @@ namespace Lucene.Net.Analysis
 				DocIdSetIterator disi;
 				if (dis == null)
 				{
-					disi = DocIdSet.EMPTY_DOCIDSET.Iterator();
+					disi = null; //TODO:DocIdSet.EMPTY_DOCIDSET.Iterator();
 				}
 				else
 				{
-					disi = dis.Iterator();
+					disi = dis.GetIterator();
 					if (disi == null)
 					{
-						disi = DocIdSet.EMPTY_DOCIDSET.Iterator();
+						disi = null; //TODO:DocIdSet.EMPTY_DOCIDSET.Iterator();
 					}
 				}
 

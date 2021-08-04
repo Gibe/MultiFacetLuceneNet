@@ -5,7 +5,6 @@ using System.Linq;
 using Lucene.Net.Analysis;
 using Lucene.Net.Index;
 using Lucene.Net.Search;
-using Lucene.Net.Store;
 using Lucene.Net.Util;
 using MultiFacetLucene.Configuration;
 
@@ -15,24 +14,12 @@ namespace MultiFacetLucene
 	{
 		private readonly ConcurrentDictionary<string, FacetValues> _facetBitSetDictionary = new ConcurrentDictionary<string, FacetValues>();
 
-		public FacetSearcher(Directory path, FacetSearcherConfiguration facetSearcherConfiguration = null)
-			: base(path)
-		{
-			Initialize(facetSearcherConfiguration);
-		}
-
-		public FacetSearcher(Directory path, bool readOnly, FacetSearcherConfiguration facetSearcherConfiguration = null)
-			: base(path, readOnly)
-		{
-			Initialize(facetSearcherConfiguration);
-		}
-
 		public FacetSearcher(IndexReader r, FacetSearcherConfiguration facetSearcherConfiguration = null)
 			: base(r)
 		{
 			Initialize(facetSearcherConfiguration);
 		}
-		
+
 		public FacetSearcherConfiguration FacetSearcherConfiguration { get; protected set; }
 
 		private void Initialize(FacetSearcherConfiguration facetSearcherConfiguration)
@@ -43,7 +30,7 @@ namespace MultiFacetLucene
 		public virtual FacetSearchResult SearchWithFacets(Query baseQueryWithoutFacetDrilldown, int topResults, IList<FacetFieldInfo> facetFieldInfos, bool includeEmptyFacets = false, Filter filter = null, Dictionary<int, int> docIdMappingTable = null)
 		{
 			var hits = Search(CreateFacetedQuery(baseQueryWithoutFacetDrilldown, facetFieldInfos, null), topResults);
-			
+
 			var facets = GetAllFacetsValues(baseQueryWithoutFacetDrilldown, facetFieldInfos, filter, docIdMappingTable);
 			if (!includeEmptyFacets)
 			{
@@ -56,7 +43,7 @@ namespace MultiFacetLucene
 				Hits = hits
 			};
 		}
-		
+
 		private FacetValues GetOrCreateFacetBitSet(FacetFieldInfo fieldInfo)
 		{
 			return _facetBitSetDictionary.GetOrAdd(fieldInfo.FieldName, ReadBitSetsForValues(fieldInfo));
@@ -66,7 +53,7 @@ namespace MultiFacetLucene
 		{
 			return new FacetBitSetCalculatorProvider().GetFacetBitSetCalculator(fieldInfo);
 		}
-		
+
 		private FacetValues ReadBitSetsForValues(FacetFieldInfo fieldInfo)
 		{
 			var facetValues = new FacetValues { Term = fieldInfo.FieldName };
@@ -79,7 +66,7 @@ namespace MultiFacetLucene
 
 			return facetValues;
 		}
-		
+
 		private IEnumerable<FacetMatch> GetAllFacetsValues(Query baseQueryWithoutFacetDrilldown, IList<FacetFieldInfo> facetFieldInfos, Filter filter, Dictionary<int, int> docIdMappingTable)
 		{
 			return
@@ -120,7 +107,7 @@ namespace MultiFacetLucene
 					CascadeVariantValuesToParent(baseQueryWithoutFacetDrilldownCopy, docIdMappingArray);
 				}
 				var count = baseQueryWithoutFacetDrilldownCopy.Cardinality();
-				
+
 				var match = new FacetMatch
 				{
 					Count = count,
@@ -155,8 +142,8 @@ namespace MultiFacetLucene
 
 		private void CascadeVariantValuesToParent(OpenBitSetDISI bitset, int[] docIdMappingTable)
 		{
-			var capacity = Math.Min(bitset.Capacity(), docIdMappingTable.Length);
-			if (bitset.IsEmpty())
+			var capacity = Math.Min(bitset.Capacity, docIdMappingTable.Length);
+			if (bitset.IsEmpty)
 				return;
 			for (int i = 0; i < capacity; i++)
 			{
@@ -177,7 +164,7 @@ namespace MultiFacetLucene
 				return new QueryWrapperFilter(query);
 			}
 
-			return new ChainedFilter(new []
+			return new ChainedFilter(new[]
 				{
 					new QueryWrapperFilter(query),
 					filter
@@ -201,14 +188,14 @@ namespace MultiFacetLucene
 					if (selectedRanges.Count == 1)
 					{
 						booleanQuery.Add(
-							new TermRangeQuery(facetFieldInfo.FieldName, selectedRanges[0].From, selectedRanges[0].To, true, true), Occur.MUST);
+							new TermRangeQuery(facetFieldInfo.FieldName, new BytesRef(selectedRanges[0].From), new BytesRef(selectedRanges[0].To), true, true), Occur.MUST);
 					}
 					else
 					{
 						var valuesQuery = new BooleanQuery();
 						foreach (var range in selectedRanges)
 						{
-							valuesQuery.Add(new TermRangeQuery(facetFieldInfo.FieldName, range.From, range.To, true, true),
+							valuesQuery.Add(new TermRangeQuery(facetFieldInfo.FieldName, new BytesRef(range.From), new BytesRef(range.To), true, true),
 								Occur.SHOULD);
 						}
 						booleanQuery.Add(valuesQuery, Occur.MUST);

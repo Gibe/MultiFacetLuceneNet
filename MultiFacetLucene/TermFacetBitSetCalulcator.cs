@@ -17,11 +17,11 @@ namespace MultiFacetLucene
 		public TermFacetBitSetCalulcator(FacetSearcherConfiguration configuration)
 		{
 			_facetSearcherConfiguration = configuration;
-		} 
-		
-		public IEnumerable<FacetSearcher.FacetValues.FacetValueBitSet> GetFacetValueBitSets(IndexReader indexReader, FacetFieldInfo info)
+		}
+
+		public IEnumerable<FacetSearcher.FacetValues.FacetValueBitSet> GetFacetValueBitSets(AtomicReader indexReader, FacetFieldInfo info)
 		{
-			var termReader = indexReader.Terms(new Term(info.FieldName, String.Empty));
+			var termReader = indexReader.GetTerms(info.FieldName);
 			do
 			{
 				if (termReader.Term.Field != info.FieldName)

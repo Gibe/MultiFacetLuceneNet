@@ -2,12 +2,12 @@
 
 namespace MultiFacetLucene.Configuration.MemoryOptimizer
 {
-    public class NoMemoryOptimizer : IMemoryOptimizer
-    {
-        //Never flag any facetvalues as lazyload (recalculate)
-        public IEnumerable<FacetSearcher.FacetValues.FacetValueBitSet> SetAsLazyLoad(List<FacetSearcher.FacetValues> facetValuesList)
-        {
-            yield break;
-        }
-    }
+	public class NoMemoryOptimizer : IMemoryOptimizer
+	{
+		//Never flag any facetvalues as lazyload (recalculate)
+		public IEnumerable<FacetSearcher.FacetValues.FacetValueBitSet> SetAsLazyLoad(List<FacetSearcher.FacetValues> facetValuesList)
+		{
+			yield break;
+		}
+	}
 }

@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Lucene.Net.Index;
 using Lucene.Net.Search;
 using Lucene.Net.Util;
@@ -19,7 +16,7 @@ namespace MultiFacetLucene
 			_facetSearcherConfiguration = configuration;
 		}
 
-		public IEnumerable<FacetSearcher.FacetValues.FacetValueBitSet> GetFacetValueBitSets(IndexReader indexReader, FacetFieldInfo info)
+		public IEnumerable<FacetSearcher.FacetValues.FacetValueBitSet> GetFacetValueBitSets(AtomicReader indexReader, FacetFieldInfo info)
 		{
 			foreach (var range in info.Ranges)
 			{
@@ -28,7 +25,7 @@ namespace MultiFacetLucene
 				if (cnt >= _facetSearcherConfiguration.MinimumCountInTotalDatasetForFacet)
 				{
 					yield return
-						new FacetSearcher.FacetValues.FacetValueBitSet {Value = range.Id, Bitset = bitset, Count = cnt};
+						new FacetSearcher.FacetValues.FacetValueBitSet { Value = range.Id, Bitset = bitset, Count = cnt };
 				}
 				else
 				{
@@ -45,7 +42,7 @@ namespace MultiFacetLucene
 
 		protected OpenBitSetDISI CalculateOpenBitSetDisi(IndexReader indexReader, string facetAttributeFieldName, string from, string to)
 		{
-			var facetQuery = new TermRangeQuery(facetAttributeFieldName, from, to, true, true);
+			var facetQuery = new TermRangeQuery(facetAttributeFieldName, new BytesRef(from), new BytesRef(to), true, true);
 			var facetQueryFilter = new QueryWrapperFilter(facetQuery);
 			return new OpenBitSetDISI(facetQueryFilter.GetDocIdSet(indexReader).Iterator(), indexReader.MaxDoc);
 		}
