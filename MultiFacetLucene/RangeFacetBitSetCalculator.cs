@@ -24,7 +24,7 @@ namespace MultiFacetLucene
 			foreach (var range in info.Ranges)
 			{
 				var bitset = CalculateOpenBitSetDisi(indexReader, info.FieldName, range.From, range.To);
-				var cnt = bitset.Cardinality();
+				var cnt = bitset.Cardinality;
 				if (cnt >= _facetSearcherConfiguration.MinimumCountInTotalDatasetForFacet)
 				{
 					yield return
@@ -45,9 +45,14 @@ namespace MultiFacetLucene
 
 		protected OpenBitSetDISI CalculateOpenBitSetDisi(IndexReader indexReader, string facetAttributeFieldName, string from, string to)
 		{
-			var facetQuery = new TermRangeQuery(facetAttributeFieldName, from, to, true, true);
+			var facetQuery = new TermRangeQuery(facetAttributeFieldName, new BytesRef(from), new BytesRef(to), true, true);
 			var facetQueryFilter = new QueryWrapperFilter(facetQuery);
-			return new OpenBitSetDISI(facetQueryFilter.GetDocIdSet(indexReader).Iterator(), indexReader.MaxDoc);
+            var disi = new OpenBitSetDISI(indexReader.MaxDoc);
+            foreach (var leaf in indexReader.Leaves)
+            {
+                disi.InPlaceOr(facetQueryFilter.GetDocIdSet(leaf.AtomicReader.AtomicContext, leaf.AtomicReader.LiveDocs).GetIterator());
+            }
+            return disi;
 		}
 	}
 }

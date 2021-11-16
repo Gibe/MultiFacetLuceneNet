@@ -2,10 +2,10 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Lucene.Net.Analysis;
+using System.Threading.Tasks;
 using Lucene.Net.Index;
+using Lucene.Net.Queries;
 using Lucene.Net.Search;
-using Lucene.Net.Store;
 using Lucene.Net.Util;
 using MultiFacetLucene.Configuration;
 
@@ -15,27 +15,33 @@ namespace MultiFacetLucene
 	{
 		private readonly ConcurrentDictionary<string, FacetValues> _facetBitSetDictionary = new ConcurrentDictionary<string, FacetValues>();
 
-		public FacetSearcher(Directory path, FacetSearcherConfiguration facetSearcherConfiguration = null)
-			: base(path)
+		public FacetSearcher(IndexReader reader, FacetSearcherConfiguration? facetSearcherConfiguration = null)
+			: base(reader)
 		{
 			Initialize(facetSearcherConfiguration);
 		}
 
-		public FacetSearcher(Directory path, bool readOnly, FacetSearcherConfiguration facetSearcherConfiguration = null)
-			: base(path, readOnly)
+		public FacetSearcher(IndexReader reader, TaskScheduler scheduler, FacetSearcherConfiguration? facetSearcherConfiguration = null)
+			: base(reader, scheduler)
 		{
 			Initialize(facetSearcherConfiguration);
 		}
 
-		public FacetSearcher(IndexReader r, FacetSearcherConfiguration facetSearcherConfiguration = null)
-			: base(r)
+		public FacetSearcher(IndexReaderContext context, FacetSearcherConfiguration? facetSearcherConfiguration = null)
+			: base(context)
 		{
 			Initialize(facetSearcherConfiguration);
 		}
-		
+
+        public FacetSearcher(IndexReaderContext context, TaskScheduler scheduler, FacetSearcherConfiguration? facetSearcherConfiguration = null)
+            : base(context, scheduler)
+        {
+            Initialize(facetSearcherConfiguration);
+        }
+
 		public FacetSearcherConfiguration FacetSearcherConfiguration { get; protected set; }
 
-		private void Initialize(FacetSearcherConfiguration facetSearcherConfiguration)
+		private void Initialize(FacetSearcherConfiguration? facetSearcherConfiguration)
 		{
 			FacetSearcherConfiguration = facetSearcherConfiguration ?? FacetSearcherConfiguration.Default();
 		}
@@ -92,10 +98,24 @@ namespace MultiFacetLucene
 		{
 			var calculations = 0;
 			var queryFilter = new CachingWrapperFilter(CombineQueryWithFilter(CreateFacetedQuery(baseQueryWithoutFacetDrilldown, allFacetFieldInfos, facetFieldInfoToCalculateFor.FieldName), filter));
-			var bitsQueryWithoutFacetDrilldown = new OpenBitSetDISI(queryFilter.GetDocIdSet(IndexReader).Iterator(), IndexReader.MaxDoc);
+						
+			var bitsQueryWithoutFacetDrilldown = new OpenBitSetDISI(IndexReader.MaxDoc);
+			foreach (var leaf in IndexReader.Leaves)
+            {
+                var docSet = queryFilter.GetDocIdSet(leaf.AtomicReader.AtomicContext, leaf.AtomicReader.LiveDocs);
+                if (docSet == null)
+                {
+					continue;
+                }
+				var iterator = docSet.GetIterator();
+                if (iterator == null)
+                {
+                    continue;
+                }
+                bitsQueryWithoutFacetDrilldown.InPlaceOr(iterator);
+			}
 			var baseQueryWithoutFacetDrilldownCopy = new OpenBitSetDISI(bitsQueryWithoutFacetDrilldown.Bits.Length);
-			baseQueryWithoutFacetDrilldownCopy.Bits = new long[bitsQueryWithoutFacetDrilldown.Bits.Length];
-
+			
 			var docIdMappingArray = GetDocIdMappingArray(docIdMappingTable);
 
 			var calculatedFacetCounts = new ResultCollection(facetFieldInfoToCalculateFor);
@@ -109,9 +129,8 @@ namespace MultiFacetLucene
 						break;
 				}
 
-				bitsQueryWithoutFacetDrilldown.Bits.CopyTo(baseQueryWithoutFacetDrilldownCopy.Bits, 0);
-				baseQueryWithoutFacetDrilldownCopy.NumWords = bitsQueryWithoutFacetDrilldown.NumWords;
-
+				baseQueryWithoutFacetDrilldownCopy.Union(bitsQueryWithoutFacetDrilldown);
+				
 				var bitset = facetValueBitSet.Bitset ?? GetFacetBitSetCalculator(facetFieldInfoToCalculateFor).GetFacetBitSet(IndexReader, facetFieldInfoToCalculateFor, facetValueBitSet.Value);
 				baseQueryWithoutFacetDrilldownCopy.And(bitset);
 
@@ -119,7 +138,7 @@ namespace MultiFacetLucene
 				{
 					CascadeVariantValuesToParent(baseQueryWithoutFacetDrilldownCopy, docIdMappingArray);
 				}
-				var count = baseQueryWithoutFacetDrilldownCopy.Cardinality();
+				var count = baseQueryWithoutFacetDrilldownCopy.Cardinality;
 				
 				var match = new FacetMatch
 				{
@@ -155,8 +174,8 @@ namespace MultiFacetLucene
 
 		private void CascadeVariantValuesToParent(OpenBitSetDISI bitset, int[] docIdMappingTable)
 		{
-			var capacity = Math.Min(bitset.Capacity(), docIdMappingTable.Length);
-			if (bitset.IsEmpty())
+			var capacity = Math.Min(bitset.Capacity, docIdMappingTable.Length);
+			if (bitset.IsEmpty)
 				return;
 			for (int i = 0; i < capacity; i++)
 			{
@@ -182,7 +201,7 @@ namespace MultiFacetLucene
 					new QueryWrapperFilter(query),
 					filter
 				},
-				ChainedFilter.Logic.AND
+				ChainedFilter.AND
 			);
 
 		}
@@ -201,14 +220,14 @@ namespace MultiFacetLucene
 					if (selectedRanges.Count == 1)
 					{
 						booleanQuery.Add(
-							new TermRangeQuery(facetFieldInfo.FieldName, selectedRanges[0].From, selectedRanges[0].To, true, true), Occur.MUST);
+							new TermRangeQuery(facetFieldInfo.FieldName, new BytesRef(selectedRanges[0].From), new BytesRef(selectedRanges[0].To), true, true), Occur.MUST);
 					}
 					else
 					{
 						var valuesQuery = new BooleanQuery();
 						foreach (var range in selectedRanges)
 						{
-							valuesQuery.Add(new TermRangeQuery(facetFieldInfo.FieldName, range.From, range.To, true, true),
+							valuesQuery.Add(new TermRangeQuery(facetFieldInfo.FieldName, new BytesRef(range.From), new BytesRef(range.To), true, true),
 								Occur.SHOULD);
 						}
 						booleanQuery.Add(valuesQuery, Occur.MUST);

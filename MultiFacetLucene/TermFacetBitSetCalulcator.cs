@@ -20,24 +20,27 @@ namespace MultiFacetLucene
 		} 
 		
 		public IEnumerable<FacetSearcher.FacetValues.FacetValueBitSet> GetFacetValueBitSets(IndexReader indexReader, FacetFieldInfo info)
-		{
-			var termReader = indexReader.Terms(new Term(info.FieldName, String.Empty));
-			do
-			{
-				if (termReader.Term.Field != info.FieldName)
-					yield break;
+        {
 
-				var bitset = CalculateOpenBitSetDisi(indexReader, info.FieldName, termReader.Term.Text);
-				var cnt = bitset.Cardinality();
-				if (cnt >= _facetSearcherConfiguration.MinimumCountInTotalDatasetForFacet)
-					yield return new FacetSearcher.FacetValues.FacetValueBitSet { Value = termReader.Term.Text, Bitset = bitset, Count = cnt };
-				else
-				{
-					bitset = null;
-				}
-			} while (termReader.Next());
-			termReader.Close();
-		}
+            foreach(var leaf in indexReader.Leaves)
+            {
+
+                var termReader = leaf.AtomicReader.GetTerms(info.FieldName).GetEnumerator();
+                do
+                { 
+                    var bitset = CalculateOpenBitSetDisi(indexReader, info.FieldName, termReader.Term.Utf8ToString());
+                    var cnt = bitset.Cardinality;
+                    if (cnt >= _facetSearcherConfiguration.MinimumCountInTotalDatasetForFacet)
+                        yield return new FacetSearcher.FacetValues.FacetValueBitSet
+                            {Value = termReader.Term.Utf8ToString(), Bitset = bitset, Count = cnt};
+                    else
+                    {
+                        bitset = null;
+                    }
+                } while (termReader.MoveNext());
+
+            }
+        }
 
 		public OpenBitSetDISI GetFacetBitSet(IndexReader indexReader, FacetFieldInfo info, string value)
 		{
@@ -49,7 +52,17 @@ namespace MultiFacetLucene
 		{
 			var facetQuery = new TermQuery(new Term(facetAttributeFieldName, value));
 			var facetQueryFilter = new QueryWrapperFilter(facetQuery);
-			return new OpenBitSetDISI(facetQueryFilter.GetDocIdSet(indexReader).Iterator(), indexReader.MaxDoc);
-		}
+            var disi = new OpenBitSetDISI(indexReader.MaxDoc);
+            foreach (var leaf in indexReader.Leaves)
+            {
+                var docSet = facetQueryFilter.GetDocIdSet(leaf.AtomicReader.AtomicContext, leaf.AtomicReader.LiveDocs);
+                var iterator = docSet.GetIterator();
+                if (iterator != null)
+                {
+                    disi.InPlaceOr(iterator);
+                }
+            }
+            return disi;
+        }
 	}
 }
