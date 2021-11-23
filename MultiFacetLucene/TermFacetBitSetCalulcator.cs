@@ -10,29 +10,29 @@ using MultiFacetLucene.Configuration;
 
 namespace MultiFacetLucene
 {
-	public class TermFacetBitSetCalulcator : IFacetBitSetCalculator
-	{
-		private readonly FacetSearcherConfiguration _facetSearcherConfiguration;
+    public class TermFacetBitSetCalulcator : IFacetBitSetCalculator
+    {
+        private readonly FacetSearcherConfiguration _facetSearcherConfiguration;
 
-		public TermFacetBitSetCalulcator(FacetSearcherConfiguration configuration)
-		{
-			_facetSearcherConfiguration = configuration;
-		} 
-		
-		public IEnumerable<FacetSearcher.FacetValues.FacetValueBitSet> GetFacetValueBitSets(IndexReader indexReader, FacetFieldInfo info)
+        public TermFacetBitSetCalulcator(FacetSearcherConfiguration configuration)
+        {
+            _facetSearcherConfiguration = configuration;
+        }
+
+        public IEnumerable<FacetSearcher.FacetValues.FacetValueBitSet> GetFacetValueBitSets(IndexReader indexReader, FacetFieldInfo info)
         {
 
-            foreach(var leaf in indexReader.Leaves)
+            foreach (var leaf in indexReader.Leaves)
             {
 
                 var termReader = leaf.AtomicReader.GetTerms(info.FieldName).GetEnumerator();
                 do
-                { 
+                {
                     var bitset = CalculateOpenBitSetDisi(indexReader, info.FieldName, termReader.Term.Utf8ToString());
                     var cnt = bitset.Cardinality;
                     if (cnt >= _facetSearcherConfiguration.MinimumCountInTotalDatasetForFacet)
                         yield return new FacetSearcher.FacetValues.FacetValueBitSet
-                            {Value = termReader.Term.Utf8ToString(), Bitset = bitset, Count = cnt};
+                        { Value = termReader.Term.Utf8ToString(), Bitset = bitset, Count = cnt };
                     else
                     {
                         bitset = null;
@@ -42,16 +42,16 @@ namespace MultiFacetLucene
             }
         }
 
-		public OpenBitSetDISI GetFacetBitSet(IndexReader indexReader, FacetFieldInfo info, string value)
-		{
-			return CalculateOpenBitSetDisi(indexReader, info.FieldName, value);
-		}
+        public OpenBitSetDISI GetFacetBitSet(IndexReader indexReader, FacetFieldInfo info, string value)
+        {
+            return CalculateOpenBitSetDisi(indexReader, info.FieldName, value);
+        }
 
 
-		protected OpenBitSetDISI CalculateOpenBitSetDisi(IndexReader indexReader, string facetAttributeFieldName, string value)
-		{
-			var facetQuery = new TermQuery(new Term(facetAttributeFieldName, value));
-			var facetQueryFilter = new QueryWrapperFilter(facetQuery);
+        protected OpenBitSetDISI CalculateOpenBitSetDisi(IndexReader indexReader, string facetAttributeFieldName, string value)
+        {
+            var facetQuery = new TermQuery(new Term(facetAttributeFieldName, value));
+            var facetQueryFilter = new QueryWrapperFilter(facetQuery);
             var disi = new OpenBitSetDISI(indexReader.MaxDoc);
             foreach (var leaf in indexReader.Leaves)
             {
@@ -64,5 +64,5 @@ namespace MultiFacetLucene
             }
             return disi;
         }
-	}
+    }
 }
