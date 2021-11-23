@@ -6,13 +6,13 @@ using System.Linq;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Documents;
 using Lucene.Net.Index;
-using Lucene.Net.QueryParsers;
+using Lucene.Net.QueryParsers.Classic;
 using Lucene.Net.Search;
 using Lucene.Net.Store;
+using Lucene.Net.Util;
 using MultiFacetLucene;
 using MultiFacetLucene.Configuration;
 using MultiFacetLucene.Configuration.MemoryOptimizer;
-using Version = Lucene.Net.Util.Version;
 
 namespace PerformanceTest
 {
@@ -64,8 +64,7 @@ namespace PerformanceTest
         protected static IndexReader SetupIndex()
         {
             var directory = new RAMDirectory();
-            var writer = new IndexWriter(directory, new StandardAnalyzer(Version.LUCENE_29), true,
-                IndexWriter.MaxFieldLength.LIMITED);
+            var writer = new IndexWriter(directory, new IndexWriterConfig(LuceneVersion.LUCENE_48, new StandardAnalyzer(LuceneVersion.LUCENE_48)));
             for (var i = 0; i < 50000; i++)
                 writer.AddDocument(new Document()
                     .AddField("title", Guid.NewGuid().ToString(), Field.Store.YES, Field.Index.NOT_ANALYZED)
@@ -73,17 +72,16 @@ namespace PerformanceTest
                     .AddField("type", GenerateFood(), Field.Store.YES, Field.Index.NOT_ANALYZED)
                     .AddField("type", GenerateFruit(), Field.Store.YES, Field.Index.NOT_ANALYZED)
                     .AddField("price", "10", Field.Store.YES, Field.Index.NOT_ANALYZED));
-            writer.Flush(true, true, true);
-            writer.Optimize();
+            writer.Flush(true, true);
             writer.Commit();
-            return IndexReader.Open(directory, true);
+            return DirectoryReader.Open(directory);
         }
 
         protected static IndexReader SetupIndexPhysicalTest()
         {
-            var directory = new DirectoryInfo(@"D:\Code\sites\SearchSite\SearchSiteWeb\App_Data\Index\Wordpress");
+            var directory = new DirectoryInfo(@"c:\temp\lucene\multifacetlucene");
             var index = FSDirectory.Open(directory);
-            return IndexReader.Open(index, true);
+            return DirectoryReader.Open(index);
         }
 
         private static void Main(string[] args)
@@ -94,9 +92,9 @@ namespace PerformanceTest
             var stopwatchAll = new Stopwatch();
             stopwatchAll.Start();
 
-            var queryParser = new MultiFieldQueryParser(Version.LUCENE_29,
+            var queryParser = new MultiFieldQueryParser(LuceneVersion.LUCENE_48,
                 new[] {"title", "bodies"},
-                new StandardAnalyzer(Version.LUCENE_29)
+                new StandardAnalyzer(LuceneVersion.LUCENE_48)
                 );
 
             var facetFieldInfos = new List<FacetFieldInfo>

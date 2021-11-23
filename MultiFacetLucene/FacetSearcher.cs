@@ -15,25 +15,25 @@ namespace MultiFacetLucene
 	{
 		private readonly ConcurrentDictionary<string, FacetValues> _facetBitSetDictionary = new ConcurrentDictionary<string, FacetValues>();
 
-		public FacetSearcher(IndexReader reader, FacetSearcherConfiguration? facetSearcherConfiguration = null)
+		public FacetSearcher(IndexReader reader, FacetSearcherConfiguration facetSearcherConfiguration = null)
 			: base(reader)
 		{
 			Initialize(facetSearcherConfiguration);
 		}
 
-		public FacetSearcher(IndexReader reader, TaskScheduler scheduler, FacetSearcherConfiguration? facetSearcherConfiguration = null)
+		public FacetSearcher(IndexReader reader, TaskScheduler scheduler, FacetSearcherConfiguration facetSearcherConfiguration = null)
 			: base(reader, scheduler)
 		{
 			Initialize(facetSearcherConfiguration);
 		}
 
-		public FacetSearcher(IndexReaderContext context, FacetSearcherConfiguration? facetSearcherConfiguration = null)
+		public FacetSearcher(IndexReaderContext context, FacetSearcherConfiguration facetSearcherConfiguration = null)
 			: base(context)
 		{
 			Initialize(facetSearcherConfiguration);
 		}
 
-        public FacetSearcher(IndexReaderContext context, TaskScheduler scheduler, FacetSearcherConfiguration? facetSearcherConfiguration = null)
+        public FacetSearcher(IndexReaderContext context, TaskScheduler scheduler, FacetSearcherConfiguration facetSearcherConfiguration = null)
             : base(context, scheduler)
         {
             Initialize(facetSearcherConfiguration);
@@ -41,7 +41,7 @@ namespace MultiFacetLucene
 
 		public FacetSearcherConfiguration FacetSearcherConfiguration { get; protected set; }
 
-		private void Initialize(FacetSearcherConfiguration? facetSearcherConfiguration)
+		private void Initialize(FacetSearcherConfiguration facetSearcherConfiguration)
 		{
 			FacetSearcherConfiguration = facetSearcherConfiguration ?? FacetSearcherConfiguration.Default();
 		}

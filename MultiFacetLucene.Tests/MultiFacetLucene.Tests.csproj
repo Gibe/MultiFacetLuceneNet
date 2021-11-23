@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MultiFacetLucene4\MultiFacetLucene4.csproj" />
+    <ProjectReference Include="..\MultiFacetLucene\MultiFacetLucene.csproj" />
   </ItemGroup>
 
 </Project>
