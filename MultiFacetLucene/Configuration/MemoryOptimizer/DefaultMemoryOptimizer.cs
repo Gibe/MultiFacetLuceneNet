@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace MultiFacetLucene.Configuration.MemoryOptimizer
+﻿namespace MultiFacetLucene.Configuration.MemoryOptimizer
 {
     public class DefaultMemoryOptimizer : IMemoryOptimizer
     {

@@ -16,7 +16,7 @@ using MultiFacetLucene.Configuration.MemoryOptimizer;
 
 namespace PerformanceTest
 {
-    internal class Program
+    public class Program
     {
         private static FacetSearcher _target;
         private static readonly Random _rnd = new Random(Guid.NewGuid().GetHashCode());
@@ -84,7 +84,7 @@ namespace PerformanceTest
             return DirectoryReader.Open(index);
         }
 
-        private static void Main(string[] args)
+        public static void Main(string[] args)
         {
             var originalByteCount = GC.GetTotalMemory(true);
             _target = new FacetSearcher(SetupIndexPhysicalTest(), new FacetSearcherConfiguration {MemoryOptimizer = new DefaultMemoryOptimizer(20, 5000), MinimumCountInTotalDatasetForFacet = 1});

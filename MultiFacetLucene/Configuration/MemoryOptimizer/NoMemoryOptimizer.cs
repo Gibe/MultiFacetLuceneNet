@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace MultiFacetLucene.Configuration.MemoryOptimizer
+﻿namespace MultiFacetLucene.Configuration.MemoryOptimizer
 {
     public class NoMemoryOptimizer : IMemoryOptimizer
     {

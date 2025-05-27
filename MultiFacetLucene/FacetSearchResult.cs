@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Lucene.Net.Search;
+﻿using Lucene.Net.Search;
 
 namespace MultiFacetLucene
 {

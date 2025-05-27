@@ -5,13 +5,6 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerformanceTest", "PerformanceTest\PerformanceTest.csproj", "{0065E899-596D-4B16-9CF5-E917DD957DAB}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{B13A814A-4ECA-4A5F-A340-FF4C6DCE5145}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultiFacetLucene", "MultiFacetLucene\MultiFacetLucene.csproj", "{87059512-913A-4B3D-BD07-C13419852B81}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultiFacetLucene.Tests", "MultiFacetLucene.Tests\MultiFacetLucene.Tests.csproj", "{B2573CD0-8A9E-43EA-BFB3-6056FB41C2D2}"

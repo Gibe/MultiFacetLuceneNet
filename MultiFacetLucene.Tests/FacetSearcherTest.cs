@@ -38,19 +38,19 @@ namespace MultiFacetLucene.Tests
 			var colorFacets = actual.Facets.Where(x => x.FacetFieldName == "color").ToList();
 			var typeFacets = actual.Facets.Where(x => x.FacetFieldName == "type").ToList();
 
-			Assert.AreEqual(5, actual.Hits.TotalHits);
+			Assert.That(actual.Hits.TotalHits, Is.EqualTo(5));
 
-			Assert.AreEqual(3, colorFacets.Count);
-			Assert.AreEqual(4, typeFacets.Count);
+			Assert.That(colorFacets.Count, Is.EqualTo(3));
+			Assert.That(typeFacets.Count, Is.EqualTo(4));
 
-			Assert.AreEqual(3, colorFacets.Single(x => x.Value == "yellow").Count);
-			Assert.AreEqual(1, colorFacets.Single(x => x.Value == "white").Count);
-			Assert.AreEqual(1, colorFacets.Single(x => x.Value == "none").Count);
+			Assert.That(colorFacets.Single(x => x.Value == "yellow").Count, Is.EqualTo(3));
+			Assert.That(colorFacets.Single(x => x.Value == "white").Count, Is.EqualTo(1));
+			Assert.That(colorFacets.Single(x => x.Value == "none").Count, Is.EqualTo(1));
 
-			Assert.AreEqual(2, typeFacets.Single(x => x.Value == "drink").Count);
-			Assert.AreEqual(1, typeFacets.Single(x => x.Value == "meat").Count);
-			Assert.AreEqual(3, typeFacets.Single(x => x.Value == "food").Count);
-			Assert.AreEqual(2, typeFacets.Single(x => x.Value == "fruit").Count);
+			Assert.That(typeFacets.Single(x => x.Value == "drink").Count, Is.EqualTo(2));
+			Assert.That(typeFacets.Single(x => x.Value == "meat").Count, Is.EqualTo(1));
+			Assert.That(typeFacets.Single(x => x.Value == "food").Count, Is.EqualTo(3));
+			Assert.That(typeFacets.Single(x => x.Value == "fruit").Count, Is.EqualTo(2));
 		}
 
 		[Test]
@@ -67,18 +67,18 @@ namespace MultiFacetLucene.Tests
 			var colorFacets = actual.Facets.Where(x => x.FacetFieldName == "color").ToList();
 			var typeFacets = actual.Facets.Where(x => x.FacetFieldName == "type").ToList();
 
-			Assert.AreEqual(3, actual.Hits.TotalHits);
+			Assert.That(actual.Hits.TotalHits, Is.EqualTo(3));
 
-			Assert.AreEqual(3, colorFacets.Count);
-			Assert.AreEqual(3, typeFacets.Count);
+			Assert.That(colorFacets.Count, Is.EqualTo(3));
+			Assert.That(typeFacets.Count, Is.EqualTo(3));
 
-			Assert.AreEqual(3, colorFacets.Single(x => x.Value == "yellow").Count);
-			Assert.AreEqual(1, colorFacets.Single(x => x.Value == "white").Count);
-			Assert.AreEqual(1, colorFacets.Single(x => x.Value == "none").Count);
+			Assert.That(colorFacets.Single(x => x.Value == "yellow").Count, Is.EqualTo(3));
+			Assert.That(colorFacets.Single(x => x.Value == "white").Count, Is.EqualTo(1));
+			Assert.That(colorFacets.Single(x => x.Value == "none").Count, Is.EqualTo(1));
 
-			Assert.AreEqual(1, typeFacets.Single(x => x.Value == "meat").Count);
-			Assert.AreEqual(3, typeFacets.Single(x => x.Value == "food").Count);
-			Assert.AreEqual(2, typeFacets.Single(x => x.Value == "fruit").Count);
+			Assert.That(typeFacets.Single(x => x.Value == "meat").Count, Is.EqualTo(1));
+			Assert.That(typeFacets.Single(x => x.Value == "food").Count, Is.EqualTo(3));
+			Assert.That(typeFacets.Single(x => x.Value == "fruit").Count, Is.EqualTo(2));
 		}
 
 		[Test]
@@ -95,19 +95,19 @@ namespace MultiFacetLucene.Tests
 			var colorFacets = actual.Facets.Where(x => x.FacetFieldName == "color").ToList();
 			var typeFacets = actual.Facets.Where(x => x.FacetFieldName == "type").ToList();
 
-			Assert.AreEqual(4, actual.Hits.TotalHits);
+			Assert.That(actual.Hits.TotalHits, Is.EqualTo(4));
 
-			Assert.AreEqual(3, colorFacets.Count);
-			Assert.AreEqual(4, typeFacets.Count);
+			Assert.That(colorFacets.Count, Is.EqualTo(3));
+			Assert.That(typeFacets.Count, Is.EqualTo(4));
 
-			Assert.AreEqual(3, colorFacets.Single(x => x.Value == "yellow").Count);
-			Assert.AreEqual(1, colorFacets.Single(x => x.Value == "white").Count);
-			Assert.AreEqual(1, colorFacets.Single(x => x.Value == "none").Count);
+			Assert.That(colorFacets.Single(x => x.Value == "yellow").Count, Is.EqualTo(3));
+			Assert.That(colorFacets.Single(x => x.Value == "white").Count, Is.EqualTo(1));
+			Assert.That(colorFacets.Single(x => x.Value == "none").Count, Is.EqualTo(1));
 
-			Assert.AreEqual(1, typeFacets.Single(x => x.Value == "meat").Count);
-			Assert.AreEqual(3, typeFacets.Single(x => x.Value == "food").Count);
-			Assert.AreEqual(2, typeFacets.Single(x => x.Value == "fruit").Count);
-			Assert.AreEqual(1, typeFacets.Single(x => x.Value == "drink").Count);
+			Assert.That(typeFacets.Single(x => x.Value == "meat").Count, Is.EqualTo(1));
+			Assert.That(typeFacets.Single(x => x.Value == "food").Count, Is.EqualTo(3));
+			Assert.That(typeFacets.Single(x => x.Value == "fruit").Count, Is.EqualTo(2));
+			Assert.That(typeFacets.Single(x => x.Value == "drink").Count, Is.EqualTo(1));
 		}
 
 		[Test]
@@ -122,9 +122,9 @@ namespace MultiFacetLucene.Tests
 
 			var colorFacets = actual.Facets.Where(x => x.FacetFieldName == "color").ToList();
 
-			Assert.AreEqual(5, actual.Hits.TotalHits);
-			Assert.AreEqual(1, colorFacets.Count);
-			Assert.AreEqual(3, colorFacets.Single(x => x.Value == "yellow").Count);
+			Assert.That(actual.Hits.TotalHits, Is.EqualTo(5));
+			Assert.That(colorFacets.Count, Is.EqualTo(1));
+			Assert.That(colorFacets.Single(x => x.Value == "yellow").Count, Is.EqualTo(3));
 		}
 
 		[Test]
@@ -139,9 +139,9 @@ namespace MultiFacetLucene.Tests
 
 			var colorFacets = actual.Facets.Where(x => x.FacetFieldName == "color").ToList();
 
-			Assert.AreEqual(2, colorFacets.Count);
-			Assert.AreEqual(3, colorFacets.Single(x => x.Value == "yellow").Count);
-			Assert.AreEqual(1, colorFacets.Single(x => x.Value == "none").Count);
+			Assert.That(colorFacets.Count, Is.EqualTo(2));
+			Assert.That(colorFacets.Single(x => x.Value == "yellow").Count, Is.EqualTo(3));
+			Assert.That(colorFacets.Single(x => x.Value == "none").Count, Is.EqualTo(1));
 		}
 
 		[Test]
@@ -158,17 +158,17 @@ namespace MultiFacetLucene.Tests
 			var colorFacets = actual.Facets.Where(x => x.FacetFieldName == "color").ToList();
 			var typeFacets = actual.Facets.Where(x => x.FacetFieldName == "type").ToList();
 
-			Assert.AreEqual(4, actual.Hits.TotalHits);
+			Assert.That(actual.Hits.TotalHits, Is.EqualTo(4));
 
-			Assert.AreEqual(3, colorFacets.Count);
-			Assert.AreEqual(2, typeFacets.Count);
+			Assert.That(colorFacets.Count, Is.EqualTo(3));
+			Assert.That(typeFacets.Count, Is.EqualTo(2));
 
-			Assert.AreEqual(3, colorFacets.Single(x => x.Value == "yellow").Count);
-			Assert.AreEqual(1, colorFacets.Single(x => x.Value == "white").Count);
-			Assert.AreEqual(1, colorFacets.Single(x => x.Value == "none").Count);
+			Assert.That(colorFacets.Single(x => x.Value == "yellow").Count, Is.EqualTo(3));
+			Assert.That(colorFacets.Single(x => x.Value == "white").Count, Is.EqualTo(1));
+			Assert.That(colorFacets.Single(x => x.Value == "none").Count, Is.EqualTo(1));
 
-			Assert.AreEqual(3, typeFacets.Single(x => x.Value == "food").Count);
-			Assert.AreEqual(2, typeFacets.Single(x => x.Value == "fruit").Count);
+			Assert.That(typeFacets.Single(x => x.Value == "food").Count, Is.EqualTo(3));
+			Assert.That(typeFacets.Single(x => x.Value == "fruit").Count, Is.EqualTo(2));
 		}
 
 
@@ -187,19 +187,19 @@ namespace MultiFacetLucene.Tests
 			var colorFacets = actual.Facets.Where(x => x.FacetFieldName == "color").ToList();
 			var typeFacets = actual.Facets.Where(x => x.FacetFieldName == "type").ToList();
 
-			Assert.AreEqual(2, actual.Hits.TotalHits);
-			Assert.AreEqual("Banana", _target.Doc(actual.Hits.ScoreDocs[0].Doc).GetField("title").GetStringValue());
-			Assert.AreEqual("Water", _target.Doc(actual.Hits.ScoreDocs[1].Doc).GetField("title").GetStringValue());
+			Assert.That(actual.Hits.TotalHits, Is.EqualTo(2));
+			Assert.That(_target.Doc(actual.Hits.ScoreDocs[0].Doc).GetField("title").GetStringValue(), Is.EqualTo("Banana"));
+			Assert.That(_target.Doc(actual.Hits.ScoreDocs[1].Doc).GetField("title").GetStringValue(), Is.EqualTo("Water"));
 
-			Assert.AreEqual(2, colorFacets.Count);
-			Assert.AreEqual(3, typeFacets.Count);
+			Assert.That(colorFacets.Count, Is.EqualTo(2));
+			Assert.That(typeFacets.Count, Is.EqualTo(3));
 
-			Assert.AreEqual(1, colorFacets.Single(x => x.Value == "yellow").Count);
-			Assert.AreEqual(1, colorFacets.Single(x => x.Value == "none").Count);
+			Assert.That(colorFacets.Single(x => x.Value == "yellow").Count, Is.EqualTo(1));
+			Assert.That(colorFacets.Single(x => x.Value == "none").Count, Is.EqualTo(1));
 
-			Assert.AreEqual(1, typeFacets.Single(x => x.Value == "drink").Count);
-			Assert.AreEqual(1, typeFacets.Single(x => x.Value == "food").Count);
-			Assert.AreEqual(1, typeFacets.Single(x => x.Value == "fruit").Count);
+			Assert.That(typeFacets.Single(x => x.Value == "drink").Count, Is.EqualTo(1));
+			Assert.That(typeFacets.Single(x => x.Value == "food").Count, Is.EqualTo(1));
+			Assert.That(typeFacets.Single(x => x.Value == "fruit").Count, Is.EqualTo(1));
 		}
 
 		[Test]
@@ -216,16 +216,16 @@ namespace MultiFacetLucene.Tests
 			var colorFacets = actual.Facets.Where(x => x.FacetFieldName == "color").ToList();
 			var typeFacets = actual.Facets.Where(x => x.FacetFieldName == "type").ToList();
 
-			Assert.AreEqual(2, actual.Hits.TotalHits);
+			Assert.That(actual.Hits.TotalHits, Is.EqualTo(2));
 
-			Assert.AreEqual(1, colorFacets.Count);
-			Assert.AreEqual(3, typeFacets.Count);
+			Assert.That(colorFacets.Count, Is.EqualTo(1));
+			Assert.That(typeFacets.Count, Is.EqualTo(3));
 
-			Assert.AreEqual(2, colorFacets.Single(x => x.Value == "yellow").Count); // only fruits
+			Assert.That(colorFacets.Single(x => x.Value == "yellow").Count, Is.EqualTo(2)); // only fruits
 
-			Assert.AreEqual(1, typeFacets.Single(x => x.Value == "meat").Count); //only yellow
-			Assert.AreEqual(2, typeFacets.Single(x => x.Value == "fruit").Count);//only yellow
-			Assert.AreEqual(3, typeFacets.Single(x => x.Value == "food").Count);//only yellow
+			Assert.That(typeFacets.Single(x => x.Value == "meat").Count, Is.EqualTo(1)); //only yellow
+			Assert.That(typeFacets.Single(x => x.Value == "fruit").Count, Is.EqualTo(2));//only yellow
+			Assert.That(typeFacets.Single(x => x.Value == "food").Count, Is.EqualTo(3));//only yellow
 		}
 
 		[Test]
@@ -240,8 +240,8 @@ namespace MultiFacetLucene.Tests
 			var actual = _target.SearchWithFacets(new MatchAllDocsQuery(), 100, facetFieldInfos, true);
 
 			var colorFacets = actual.Facets.Where(x => x.FacetFieldName == "color").ToList();
-			
-			Assert.AreEqual(1, colorFacets.Count(x => x.Count == 0));	
+
+			Assert.That(colorFacets.Count(x => x.Count == 0), Is.EqualTo(1));
 		}
 
 		[Test]
@@ -257,7 +257,7 @@ namespace MultiFacetLucene.Tests
 
 			var colorFacets = actual.Facets.Where(x => x.FacetFieldName == "color").ToList();
 
-			Assert.AreEqual(0, colorFacets.Count(x => x.Count == 0));
+			Assert.That(colorFacets.Count(x => x.Count == 0), Is.EqualTo(0));
 		}
 
 		[Test]
@@ -285,22 +285,22 @@ namespace MultiFacetLucene.Tests
 			var typeFacets = actual.Facets.Where(x => x.FacetFieldName == "type").ToList();
 			var priceFacets = actual.Facets.Where(x => x.FacetFieldName == "price").ToList();
 
-			Assert.AreEqual(3, actual.Hits.TotalHits);
+			Assert.That(actual.Hits.TotalHits, Is.EqualTo(3));
 
-			Assert.AreEqual(2, colorFacets.Count);
-			Assert.AreEqual(3, typeFacets.Count);
-			Assert.AreEqual(3, priceFacets.Count);
+			Assert.That(colorFacets.Count, Is.EqualTo(2));
+			Assert.That(typeFacets.Count, Is.EqualTo(3));
+			Assert.That(priceFacets.Count, Is.EqualTo(3));
 
-			Assert.AreEqual(2, priceFacets.Single(x => x.Value == "A").Count);
-			Assert.AreEqual(3, priceFacets.Single(x => x.Value == "B").Count);
-			Assert.AreEqual(4, priceFacets.Single(x => x.Value == "C").Count);
+			Assert.That(priceFacets.Single(x => x.Value == "A").Count, Is.EqualTo(2));
+			Assert.That(priceFacets.Single(x => x.Value == "B").Count, Is.EqualTo(3));
+			Assert.That(priceFacets.Single(x => x.Value == "C").Count, Is.EqualTo(4));
 
-			Assert.AreEqual(2, colorFacets.Single(x => x.Value == "yellow").Count);
-			Assert.AreEqual(1, colorFacets.Single(x => x.Value == "none").Count);
+			Assert.That(colorFacets.Single(x => x.Value == "yellow").Count, Is.EqualTo(2));
+			Assert.That(colorFacets.Single(x => x.Value == "none").Count, Is.EqualTo(1));
 
-			Assert.AreEqual(2, typeFacets.Single(x => x.Value == "food").Count);
-			Assert.AreEqual(2, typeFacets.Single(x => x.Value == "fruit").Count);
-			Assert.AreEqual(1, typeFacets.Single(x => x.Value == "drink").Count);
+			Assert.That(typeFacets.Single(x => x.Value == "food").Count, Is.EqualTo(2));
+			Assert.That(typeFacets.Single(x => x.Value == "fruit").Count, Is.EqualTo(2));
+			Assert.That(typeFacets.Single(x => x.Value == "drink").Count, Is.EqualTo(1));
 		}
 
 
