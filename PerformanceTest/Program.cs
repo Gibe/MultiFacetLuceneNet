@@ -18,7 +18,7 @@ namespace PerformanceTest
 {
     public class Program
     {
-        private static FacetSearcher _target;
+        private static FacetSearcher? _target;
         private static readonly Random _rnd = new Random(Guid.NewGuid().GetHashCode());
 
         private static void Maina(string[] args)
@@ -57,7 +57,7 @@ namespace PerformanceTest
             };
 
             //Warmup to prefetch facet bitset
-            _target.SearchWithFacets(new TermQuery(new Term("Price", "5")), 100, facetFieldInfos);
+            _target?.SearchWithFacets(new TermQuery(new Term("Price", "5")), 100, facetFieldInfos);
         }
 
 
@@ -67,11 +67,11 @@ namespace PerformanceTest
             var writer = new IndexWriter(directory, new IndexWriterConfig(LuceneVersion.LUCENE_48, new StandardAnalyzer(LuceneVersion.LUCENE_48)));
             for (var i = 0; i < 50000; i++)
                 writer.AddDocument(new Document()
-                    .AddField("title", Guid.NewGuid().ToString(), Field.Store.YES, Field.Index.NOT_ANALYZED)
-                    .AddField("color", GenerateColor(), Field.Store.YES, Field.Index.NOT_ANALYZED)
-                    .AddField("type", GenerateFood(), Field.Store.YES, Field.Index.NOT_ANALYZED)
-                    .AddField("type", GenerateFruit(), Field.Store.YES, Field.Index.NOT_ANALYZED)
-                    .AddField("price", "10", Field.Store.YES, Field.Index.NOT_ANALYZED));
+                    .AddField("title", Guid.NewGuid().ToString(), false)
+                    .AddField("color", GenerateColor(), false)
+                    .AddField("type", GenerateFood(), false)
+                    .AddField("type", GenerateFruit(), false)
+                    .AddField("price", "10", false));
             writer.Flush(true, true);
             writer.Commit();
             return DirectoryReader.Open(directory);

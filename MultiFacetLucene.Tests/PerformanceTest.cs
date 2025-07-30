@@ -14,8 +14,8 @@ namespace MultiFacetLucene.Tests
     [TestFixture]
     public class PerformanceTest
     {
-        private static FacetSearcher _target;
-        private static readonly Random _rnd = new Random(Guid.NewGuid().GetHashCode());
+        private static FacetSearcher? _target;
+        private static readonly Random Rnd = new Random(Guid.NewGuid().GetHashCode());
 
         public void Warmup()
         {
@@ -25,7 +25,7 @@ namespace MultiFacetLucene.Tests
                 new FacetFieldInfo{ FieldName = "color"},
                 new FacetFieldInfo{ FieldName = "type"},
             };
-            _target.SearchWithFacets(new TermQuery(new Term("Price", "5")), 100, facetFieldInfos);
+            _target?.SearchWithFacets(new TermQuery(new Term("Price", "5")), 100, facetFieldInfos);
         }
 
         [SetUp]
@@ -47,7 +47,7 @@ namespace MultiFacetLucene.Tests
                 new() { FieldName = "color"},
                 new() { FieldName = "type"},
             };
-            var actual = _target.SearchWithFacets(new MatchAllDocsQuery(), 100, facetFieldInfos);
+            var actual = _target?.SearchWithFacets(new MatchAllDocsQuery(), 100, facetFieldInfos);
 
 
             stopwatch.Stop();
@@ -61,7 +61,7 @@ namespace MultiFacetLucene.Tests
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            var actual = _target.SearchWithFacets(new MatchAllDocsQuery(), 100, new List<FacetFieldInfo>());
+            var actual = _target?.SearchWithFacets(new MatchAllDocsQuery(), 100, new List<FacetFieldInfo>());
 
 
             stopwatch.Stop();
@@ -76,11 +76,11 @@ namespace MultiFacetLucene.Tests
             var writer = new IndexWriter(directory, new IndexWriterConfig(Lucene.Net.Util.LuceneVersion.LUCENE_48, new StandardAnalyzer(Lucene.Net.Util.LuceneVersion.LUCENE_48)));
             for (var i = 0; i < 50000; i++)
                 writer.AddDocument(new Document()
-                    .AddField("title", Guid.NewGuid().ToString(), Field.Store.YES, Field.Index.NOT_ANALYZED)
-                    .AddField("color", GenerateColor(), Field.Store.YES, Field.Index.NOT_ANALYZED)
-                    .AddField("type", GenerateFood(), Field.Store.YES, Field.Index.NOT_ANALYZED)
-                    .AddField("type", GenerateFruit(), Field.Store.YES, Field.Index.NOT_ANALYZED)
-                    .AddField("price", "10", Field.Store.YES, Field.Index.NOT_ANALYZED));
+                    .AddField("title", Guid.NewGuid().ToString(), false)
+                    .AddField("color", GenerateColor(), false)
+                    .AddField("type", GenerateFood(), false)
+                    .AddField("type", GenerateFruit(), false)
+                    .AddField("price", "10", false));
             writer.Flush(true, true);
             writer.Commit();
             return DirectoryReader.Open(directory);
@@ -104,7 +104,7 @@ namespace MultiFacetLucene.Tests
 
         private static string GetRandom(int i, int i1)
         {
-            return _rnd.Next(i, i1).ToString("00000");
+            return Rnd.Next(i, i1).ToString("00000");
         }
     }
 }

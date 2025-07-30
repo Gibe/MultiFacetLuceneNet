@@ -47,7 +47,12 @@ namespace MultiFacetLucene
             var disi = new OpenBitSetDISI(indexReader.MaxDoc);
             foreach (var leaf in indexReader.Leaves)
             {
-                disi.InPlaceOr(facetQueryFilter.GetDocIdSet(leaf.AtomicReader.AtomicContext, leaf.AtomicReader.LiveDocs).GetIterator());
+	            var docIdSet = facetQueryFilter.GetDocIdSet(leaf.AtomicReader.AtomicContext, leaf.AtomicReader.LiveDocs)
+		            .GetIterator();
+	            if (docIdSet != null)
+	            {
+		            disi.InPlaceOr(docIdSet);
+	            }
             }
             return disi;
         }

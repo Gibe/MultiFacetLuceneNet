@@ -16,7 +16,7 @@ namespace MultiFacetLucene.Tests
 	public class FacetSearcherTest
 	{
 		private FacetSearcher _target;
-
+		
 		[SetUp]
 		public void TestInitialize()
 		{
@@ -31,7 +31,6 @@ namespace MultiFacetLucene.Tests
 								new FacetFieldInfo{ FieldName = "color"},
 								new FacetFieldInfo{ FieldName = "type"},
 						};
-
 
 			var actual = _target.SearchWithFacets(new MatchAllDocsQuery(), 100, facetFieldInfos);
 
@@ -58,8 +57,8 @@ namespace MultiFacetLucene.Tests
 		{
 			var facetFieldInfos = new List<FacetFieldInfo>
 						{
-								new FacetFieldInfo{ FieldName = "color", Selections = new List<string>{"yellow"}},
-								new FacetFieldInfo{ FieldName = "type"},
+								new() { FieldName = "color", Selections = new List<string>{"yellow"}},
+								new() { FieldName = "type"},
 						};
 
 			var actual = _target.SearchWithFacets(new MatchAllDocsQuery(), 100, facetFieldInfos);
@@ -86,8 +85,8 @@ namespace MultiFacetLucene.Tests
 		{
 			var facetFieldInfos = new List<FacetFieldInfo>
 						{
-								new FacetFieldInfo{ FieldName = "color", Selections = new List<string>{"yellow", "none"}},
-								new FacetFieldInfo{ FieldName = "type"},
+								new() { FieldName = "color", Selections = new List<string>{"yellow", "none"}},
+								new() { FieldName = "type"},
 						};
 
 			var actual = _target.SearchWithFacets(new MatchAllDocsQuery(), 100, facetFieldInfos);
@@ -115,7 +114,7 @@ namespace MultiFacetLucene.Tests
 		{
 			var facetFieldInfos = new List<FacetFieldInfo>
 						{
-								new FacetFieldInfo{ FieldName = "color", MaxToFetchExcludingSelections = 1},
+								new() { FieldName = "color", MaxToFetchExcludingSelections = 1},
 						};
 
 			var actual = _target.SearchWithFacets(new MatchAllDocsQuery(), 100, facetFieldInfos);
@@ -132,7 +131,7 @@ namespace MultiFacetLucene.Tests
 		{
 			var facetFieldInfos = new List<FacetFieldInfo>
 						{
-								new FacetFieldInfo{ FieldName = "color", Selections = new List<string>{"none"}, MaxToFetchExcludingSelections = 1},
+								new() { FieldName = "color", Selections = new List<string>{"none"}, MaxToFetchExcludingSelections = 1},
 						};
 
 			var actual = _target.SearchWithFacets(new MatchAllDocsQuery(), 100, facetFieldInfos);
@@ -149,8 +148,8 @@ namespace MultiFacetLucene.Tests
 		{
 			var facetFieldInfos = new List<FacetFieldInfo>
 						{
-								new FacetFieldInfo{ FieldName = "color", Selections = new List<string>{"yellow", "none"}},
-								new FacetFieldInfo{ FieldName = "type", MaxToFetchExcludingSelections = 2},
+								new() { FieldName = "color", Selections = new List<string>{"yellow", "none"}},
+								new() { FieldName = "type", MaxToFetchExcludingSelections = 2},
 						};
 
 			var actual = _target.SearchWithFacets(new MatchAllDocsQuery(), 100, facetFieldInfos);
@@ -179,8 +178,8 @@ namespace MultiFacetLucene.Tests
 
 			var facetFieldInfos = new List<FacetFieldInfo>
 						{
-								new FacetFieldInfo{ FieldName = "color"},
-								new FacetFieldInfo{ FieldName = "type"},
+								new() { FieldName = "color"},
+								new() { FieldName = "type"},
 						};
 			var actual = _target.SearchWithFacets(query, 100, facetFieldInfos);
 
@@ -207,8 +206,8 @@ namespace MultiFacetLucene.Tests
 		{
 			var facetFieldInfos = new List<FacetFieldInfo>
 						{
-								new FacetFieldInfo{ FieldName = "color", Selections = new List<string>{"yellow"}},
-								new FacetFieldInfo{ FieldName = "type", Selections = new List<string>{"fruit"}},
+								new() { FieldName = "color", Selections = new List<string>{"yellow"}},
+								new() { FieldName = "type", Selections = new List<string>{"fruit"}},
 						};
 
 			var actual = _target.SearchWithFacets(new MatchAllDocsQuery(), 100, facetFieldInfos);
@@ -233,8 +232,8 @@ namespace MultiFacetLucene.Tests
 		{
 			var facetFieldInfos = new List<FacetFieldInfo>
 			{
-				new FacetFieldInfo{ FieldName = "type", Selections = new List<string>{"drink"} },
-        new FacetFieldInfo{ FieldName = "color"}
+				new() { FieldName = "type", Selections = new List<string>{"drink"} },
+				new() { FieldName = "color"}
 			};
 
 			var actual = _target.SearchWithFacets(new MatchAllDocsQuery(), 100, facetFieldInfos, true);
@@ -249,11 +248,11 @@ namespace MultiFacetLucene.Tests
 		{
 			var facetFieldInfos = new List<FacetFieldInfo>
 			{
-				new FacetFieldInfo{ FieldName = "type", Selections = new List<string>{"drink"} },
-				new FacetFieldInfo{ FieldName = "color"}
+				new() { FieldName = "type", Selections = new List<string>{"drink"} },
+				new() { FieldName = "color"}
 			};
 
-			var actual = _target.SearchWithFacets(new MatchAllDocsQuery(), 100, facetFieldInfos, false);
+			var actual = _target.SearchWithFacets(new MatchAllDocsQuery(), 100, facetFieldInfos);
 
 			var colorFacets = actual.Facets.Where(x => x.FacetFieldName == "color").ToList();
 
@@ -265,18 +264,17 @@ namespace MultiFacetLucene.Tests
 		{
 			var facetFieldInfos = new List<FacetFieldInfo>
 						{
-								new FacetFieldInfo{ FieldName = "price", IsRange = true, Ranges = new List<MultiFacetLucene.Range>
-								{
-									new MultiFacetLucene.Range { Id = "A", From = "0", To = "10"},
-									new MultiFacetLucene.Range { Id = "B", From = "0", To = "20"},
-									new MultiFacetLucene.Range { Id = "C", From = "0", To = "30"}
+								new()
+								{ FieldName = "price", IsRange = true, Ranges =
+								[
+									new() { Id = "A", From = "0", To = "10"},
+									new() { Id = "B", From = "0", To = "20"},
+									new() { Id = "C", From = "0", To = "30"}
+								],
+								Selections = ["B"]
 								},
-								Selections = new List<string>
-								{
-									"B"
-								}},
-								new FacetFieldInfo{ FieldName = "color", Selections = new List<string>()},
-								new FacetFieldInfo{ FieldName = "type", Selections = new List<string>()},
+								new() { FieldName = "color", Selections = new List<string>()},
+								new() { FieldName = "type", Selections = new List<string>()},
 						};
 
 			var actual = _target.SearchWithFacets(new MatchAllDocsQuery(), 100, facetFieldInfos);
@@ -308,40 +306,43 @@ namespace MultiFacetLucene.Tests
 		{
 			var directory = new RAMDirectory();
 			var writer = new IndexWriter(directory, new IndexWriterConfig(LuceneVersion.LUCENE_48, new StandardAnalyzer(LuceneVersion.LUCENE_48)));
+
 			writer.AddDocument(new Document()
-					.AddField("title", "Banana", Field.Store.YES, Field.Index.NOT_ANALYZED)
-					.AddField("color", "yellow", Field.Store.YES, Field.Index.NOT_ANALYZED)
-					.AddField("type", "food", Field.Store.YES, Field.Index.NOT_ANALYZED)
-					.AddField("type", "fruit", Field.Store.YES, Field.Index.NOT_ANALYZED)
-					.AddField("keywords", "apa hello whatever", Field.Store.YES, Field.Index.ANALYZED)
-					.AddField("price", "10", Field.Store.YES, Field.Index.NOT_ANALYZED));
+					.AddField("title", "Banana", false)
+					.AddField("color", "yellow", false)
+					.AddField("type", "food", false)
+					.AddField("type", "fruit", false)
+					.AddField("keywords", "apa hello whatever")
+					.AddField("price", "10", false));
 			writer.AddDocument(new Document()
-					.AddField("title", "Apple", Field.Store.YES, Field.Index.NOT_ANALYZED)
-					.AddField("color", "yellow", Field.Store.YES, Field.Index.NOT_ANALYZED)
-					.AddField("type", "food", Field.Store.YES, Field.Index.NOT_ANALYZED)
-					.AddField("type", "fruit", Field.Store.YES, Field.Index.NOT_ANALYZED)
-					.AddField("price", "20", Field.Store.YES, Field.Index.NOT_ANALYZED));
+					.AddField("title", "Apple", false)
+					.AddField("color", "yellow", false)
+					.AddField("type", "food", false)
+					.AddField("type", "fruit", false)
+					.AddField("price", "20", false));
 			writer.AddDocument(new Document()
-					.AddField("title", "Burger", Field.Store.YES, Field.Index.NOT_ANALYZED)
-					.AddField("color", "yellow", Field.Store.YES, Field.Index.NOT_ANALYZED)
-					.AddField("type", "food", Field.Store.YES, Field.Index.NOT_ANALYZED)
-					.AddField("type", "meat", Field.Store.YES, Field.Index.NOT_ANALYZED)
-					.AddField("price", "30", Field.Store.YES, Field.Index.NOT_ANALYZED));
+					.AddField("title", "Burger", false)
+					.AddField("color", "yellow", false)
+					.AddField("type", "food", false)
+					.AddField("type", "meat", false)
+					.AddField("price", "30", false));
 			writer.AddDocument(new Document()
-					.AddField("title", "Milk", Field.Store.YES, Field.Index.NOT_ANALYZED)
-					.AddField("color", "white", Field.Store.YES, Field.Index.NOT_ANALYZED)
-					.AddField("type", "drink", Field.Store.YES, Field.Index.NOT_ANALYZED)
-					.AddField("price", "40", Field.Store.YES, Field.Index.NOT_ANALYZED));
+					.AddField("title", "Milk", false)
+					.AddField("color", "white", false)
+					.AddField("type", "drink", false)
+					.AddField("price", "40", false));
 			writer.AddDocument(new Document()
-					.AddField("title", "Water", Field.Store.YES, Field.Index.NOT_ANALYZED)
-					.AddField("color", "none", Field.Store.YES, Field.Index.NOT_ANALYZED)
-					.AddField("type", "drink", Field.Store.YES, Field.Index.NOT_ANALYZED)
-					.AddField("keywords", "apa hello cars", Field.Store.YES, Field.Index.ANALYZED)
-					.AddField("price", "0", Field.Store.YES, Field.Index.NOT_ANALYZED));
+					.AddField("title", "Water", false)
+					.AddField("color", "none", false)
+					.AddField("type", "drink", false)
+					.AddField("keywords", "apa hello cars")
+					.AddField("price", "0", false));
 			writer.Flush(true, true);
 			writer.Commit();
 			return DirectoryReader.Open(directory);
 
 		}
+
+
 	}
 }
