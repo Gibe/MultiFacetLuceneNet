@@ -98,7 +98,7 @@ namespace MultiFacetLucene
 
 			var bitsQueryWithoutFacetDrilldown = new OpenBitSetDISI(IndexReader.MaxDoc);
 			foreach (var leaf in IndexReader.Leaves)
-			{
+			{ 
 				var docSet = queryFilter.GetDocIdSet(leaf.AtomicReader.AtomicContext, leaf.AtomicReader.LiveDocs);
 				if (docSet == null)
 				{
